@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,13 +36,15 @@ val buttonList = listOf(
     "AC","0",".","="
 )
 @Composable
-fun Calculator(modifier: Modifier = Modifier)
+fun Calculator(modifier: Modifier = Modifier,viewModel: CalculatorViewModel)
 {
+    val equationText = viewModel.equationText.observeAsState()
+    val resultText = viewModel.resulttext.observeAsState()
     Box(modifier =modifier)
     {
         Column(modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.End) {
-            Text(text = "123+123",
+            Text(text = equationText.value?:"",
                 style = TextStyle(
                     fontSize = 30.sp,
                     textAlign = TextAlign.End
@@ -49,7 +52,8 @@ fun Calculator(modifier: Modifier = Modifier)
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(text = "246",
+            Spacer(modifier = Modifier.weight(1f))
+            Text(text = resultText.value?:"",
                 style = TextStyle(
                     fontSize = 60.sp,
                     textAlign = TextAlign.End
@@ -62,7 +66,9 @@ fun Calculator(modifier: Modifier = Modifier)
                 ) {
                 items(buttonList)
                 {
-                    CalculatorButton(btn = it)
+                    CalculatorButton(btn = it, onClick = {
+                        viewModel.onButtonClick(it)
+                    })
                 }
             }
         }
@@ -70,11 +76,11 @@ fun Calculator(modifier: Modifier = Modifier)
 }
 
 @Composable
-fun CalculatorButton(btn:String)
+fun CalculatorButton(btn:String,onClick : () -> Unit)
 {
-    Box(modifier = Modifier.padding(8.dp))
+    Box(modifier = Modifier.padding(10.dp))
     {
-        FloatingActionButton(onClick = { },
+        FloatingActionButton(onClick = onClick,
             modifier = Modifier.size(80.dp),
             shape = CircleShape,
             containerColor = getColor(btn)
